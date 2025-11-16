@@ -30,30 +30,24 @@ const GameBoard = (function() {
     };
     
     const getRows = function() {
-        const first = board.slice(0,3);   // 0, 1, 2
-        const second = board.slice(3,6);  // 3, 4, 5
-        const third = board.slice(6,9);   // 6, 7, 8
+        const first = [board[0], board[1], board[2]];
+        const second = [board[3], board[4], board[5]];
+        const third = [board[6], board[7], board[8]];
         
         return { first, second, third }
     };
     
     const getCols = function() {
-        const col = (arr, start) => 
-            arr.filter((elem, index) => index % 3 === start);
-        
-        const first = col(board, 0);   // 0, 3, 6
-        const second = col(board, 1);  // 1, 4, 7
-        const third = col(board, 2);  // 2, 5, 8
+        const first = [board[0], board[3], board[6]];
+        const second = [board[1], board[4], board[7]];
+        const third = [board[2], board[5], board[8]];
         
         return { first, second, third }
     };
     
     const getDiagonals = function() {
-        const firstDiagIndices = [0, 4, 8];
-        const secondDiagIndices = [2, 4, 6];
-        
-        const first = firstDiagIndices.map(index => board[index]); // 0, 4, 8
-        const second = secondDiagIndices.map(index => board[index]); // 2, 4, 6
+        const first = [board[0], board[4], board[8]];
+        const second = [board[2], board[4], board[6]];
         
         return { first, second } 
     };
@@ -69,7 +63,7 @@ const GameBoard = (function() {
                 You tried to insert at index ${index}, but the max is 8.`);
             }
             
-            board.splice(index, 1, marker);
+            board[index] = marker;
             logBoard();
             Game.checkWinner();
     };
@@ -111,7 +105,7 @@ const Game = (function() {
 
         const hasThree = markerCounts => 
             Object.values(markerCounts).some(track => track.includes(3));
-        
+
         if (hasThree(markerCountX)) console.log("The winner is X");
         else if (hasThree(markerCountO)) console.log("The winner is O")
     };
