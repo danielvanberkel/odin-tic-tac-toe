@@ -86,30 +86,12 @@ const GameBoard = (function() {
         const cols = getCols();
         const diags = getDiagonals();
         
-        let countInRows = [];
-        let countInCols = [];
-        let countInDiags = [];
-        
-        // Iterate over 'rows' to get out all row arrays
-        for (const [_, row] of Object.entries(rows)) {
-            // Run the countOccurrences on each row array and add to countInRows array
-            const count = countOccurences(row, marker);
-            countInRows.push(count);
-        }
-        
-        // Iterate over 'rows' to get out all row arrays
-        for (const [_, col] of Object.entries(cols)) {
-            // Run the countOccurrences on each row array and add to countInRows array
-            const count = countOccurences(col, marker);
-            countInCols.push(count);
-        }
-        
-        // Iterate over 'rows' to get out all row arrays
-        for (const [_, diag] of Object.entries(diags)) {
-            // Run the countOccurrences on each row array and add to countInRows array
-            const count = countOccurences(diag, marker);
-            countInDiags.push(count);
-        }
+        const countAll = obj => 
+            Object.values(obj).map(track => countOccurences(track, marker));
+
+        const countInRows = countAll(getRows());
+        const countInCols = countAll(getCols());
+        const countInDiags = countAll(getDiagonals());
         
         return { countInRows, countInCols, countInDiags }
         
