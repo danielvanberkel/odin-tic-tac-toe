@@ -61,14 +61,12 @@ const GameBoard = (function() {
     const placeMarker = function(marker, index) {
         if (marker !== "X" && marker !== "O") {
             throw Error("You can only play with 'X' and 'O' markers.");
-            return;
         }
         
         if (index > 8) {
             throw Error(
                 `Cannot place marker on board as the index is out of bounds. 
                 You tried to insert at index ${index}, but the max is 8.`);
-                return;
             }
             
             board.splice(index, 1, marker);
@@ -79,7 +77,6 @@ const GameBoard = (function() {
     const getMarkerCount = function(marker) {
         if (marker !== "X" && marker !== "O") {
             throw Error("You can only play with 'X' and 'O' markers.");
-            return;
         }
         
         const rows = getRows();
@@ -111,29 +108,35 @@ const Game = (function() {
     const checkWinner = function() {
         const markerCountX = GameBoard.getMarkerCount("X");
         const markerCountO = GameBoard.getMarkerCount("O");
+
+        const hasThree = markerCounts => 
+            Object.values(markerCounts).some(track => track.includes(3));
         
-        let winnerIsX = []
-        let winnerIsO = []
+        // let winnerIsX = []
+        // let winnerIsO = []
         
-        // Check if X is winner
-        for (const [track, countX] of Object.entries(markerCountX)) {
-            if (countX.includes(3)) {
-                winnerIsX.push(true)
-            }
-        }
+        // // Check if X is winner
+        // for (const [track, countX] of Object.entries(markerCountX)) {
+        //     if (countX.includes(3)) {
+        //         winnerIsX.push(true)
+        //     }
+        // }
         
-        // Check if O is winner
-        for (const [track, countO] of Object.entries(markerCountO)) {
-            if (countO.includes(3)) {
-                winnerIsO.push(true)
-            }
-        }
+        // // Check if O is winner
+        // for (const [track, countO] of Object.entries(markerCountO)) {
+        //     if (countO.includes(3)) {
+        //         winnerIsO.push(true)
+        //     }
+        // }
         
-        if (winnerIsX.includes(true)) {
-            console.log("The winner is X")
-        } else if (winnerIsO.includes(true)) {
-            console.log("The winner is O")
-        } 
+        // if (winnerIsX.includes(true)) {
+        //     console.log("The winner is X")
+        // } else if (winnerIsO.includes(true)) {
+        //     console.log("The winner is O")
+        // } 
+
+        if (hasThree(markerCountX)) console.log("The winner is X");
+        else if (hasThree(markerCountO)) console.log("The winner is O")
     };
     
     return { checkWinner }
