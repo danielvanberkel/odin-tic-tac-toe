@@ -112,29 +112,6 @@ const Game = (function() {
         const hasThree = markerCounts => 
             Object.values(markerCounts).some(track => track.includes(3));
         
-        // let winnerIsX = []
-        // let winnerIsO = []
-        
-        // // Check if X is winner
-        // for (const [track, countX] of Object.entries(markerCountX)) {
-        //     if (countX.includes(3)) {
-        //         winnerIsX.push(true)
-        //     }
-        // }
-        
-        // // Check if O is winner
-        // for (const [track, countO] of Object.entries(markerCountO)) {
-        //     if (countO.includes(3)) {
-        //         winnerIsO.push(true)
-        //     }
-        // }
-        
-        // if (winnerIsX.includes(true)) {
-        //     console.log("The winner is X")
-        // } else if (winnerIsO.includes(true)) {
-        //     console.log("The winner is O")
-        // } 
-
         if (hasThree(markerCountX)) console.log("The winner is X");
         else if (hasThree(markerCountO)) console.log("The winner is O")
     };
