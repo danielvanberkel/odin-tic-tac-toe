@@ -1,5 +1,3 @@
-// only need 1 instance? wrap in IIFE so that it cannot be reused
-
 const GameBoard = (function() {
     const VALID_MARKERS = ["X", "O"];
     let board = [];
