@@ -1,119 +1,166 @@
 // only need 1 instance? wrap in IIFE so that it cannot be reused
 
 const GameBoard = (function() {
-    let board = ['', '', '', '', '', '', '', '', ''];
-    
-    const fillWithDummyData = function() {
+    const VALID_MARKERS = ["X", "O"];
+    let board = [];
+
+    const init = function() {
         board = ['', '', '', '', '', '', '', '', ''];
-        const options = ["X", "O"];
-        
-        for (let i = 0; i < 9; i++) {
-            const randomIndex = Math.floor(Math.random() * options.length);
-            const randomMarker = options[randomIndex];
-            placeMarker(randomMarker, i)
-        }
     }
-    
-    const getBoard = function() {
-        return board;
-    };
-    
-    const logBoard = function() {
-        let result = ''
-        
-        board.forEach((marker, index) => {
-            result += `[${marker}]`;
-            if ((index + 1) % 3 === 0) result += '\n';
-        });
-        
-        console.log(result);
-    };
-    
-    const getRows = function() {
-        const first = [board[0], board[1], board[2]];
-        const second = [board[3], board[4], board[5]];
-        const third = [board[6], board[7], board[8]];
-        
-        return { first, second, third }
-    };
-    
-    const getCols = function() {
-        const first = [board[0], board[3], board[6]];
-        const second = [board[1], board[4], board[7]];
-        const third = [board[2], board[5], board[8]];
-        
-        return { first, second, third }
-    };
-    
-    const getDiagonals = function() {
-        const first = [board[0], board[4], board[8]];
-        const second = [board[2], board[4], board[6]];
-        
-        return { first, second } 
-    };
+
+    const getBoard = () => board;
+
+    const WIN_COMBOS = [
+        [0,1,2], [3,4,5], [6,7,8],  // rows
+        [0,3,6], [1,4,7], [2,5,8],  // columns
+        [0,4,8], [2,4,6]            // diagnoals
+    ]
     
     const placeMarker = function(marker, index) {
-        if (marker !== "X" && marker !== "O") {
+        if (!VALID_MARKERS.includes(marker)) {
             throw Error("You can only play with 'X' and 'O' markers.");
         }
         
         if (index > 8) {
             throw Error(
                 `Cannot place marker on board as the index is out of bounds. 
-                You tried to insert at index ${index}, but the max is 8.`);
+                You tried to insert at index ${index}, but the maximum index is 8.`);
             }
             
             board[index] = marker;
-            logBoard();
-            Game.checkWinner();
-    };
+     };
+    
+    return { init, getBoard, placeMarker, WIN_COMBOS }
+    
+})();
         
-    const getMarkerCount = function(marker) {
-        if (marker !== "X" && marker !== "O") {
-            throw Error("You can only play with 'X' and 'O' markers.");
-        }
-        
-        const rows = getRows();
-        const cols = getCols();
-        const diags = getDiagonals();
-        
-        const countAll = obj => 
-            Object.values(obj).map(track => countOccurences(track, marker));
+const GameController = (function() {
+    let _hasStarted = false;
+    const hasStarted = () => _hasStarted;
 
-        const countInRows = countAll(getRows());
-        const countInCols = countAll(getCols());
-        const countInDiags = countAll(getDiagonals());
-        
-        return { countInRows, countInCols, countInDiags }
-        
-    };
+    let round = 0;
+    let activePlayer = {};
+    const getActivePlayer = () => activePlayer;
+    let players = [];
 
-    function countOccurences(array, searchValue) {
-        return array.reduce(
-            (accumulator, currentValue) => (currentValue === searchValue ? accumulator + 1 : accumulator), 0);
+    const init = function(player1Name, player2Name) {
+        players = createPlayers(player1Name, player2Name);
+        activePlayer = players[0];
+        _hasStarted = true;
+        round = 0;
+
+        GameBoard.init();
+        DisplayController.init();
     }
-    
-    return { fillWithDummyData, getBoard, logBoard, getRows, getCols, getDiagonals, placeMarker, getMarkerCount }
-    
-})();
-        
-const Game = (function() {
+
+    function createPlayers(player1Name, player2Name) {
+        const player1 = { name: player1Name, marker: "X" };
+        const player2 = { name: player2Name, marker: "O" };
+        return [player1, player2];
+    }
+
+    const switchPlayerTurn = () => activePlayer = (activePlayer === players[0] ? players[1] : players[0]);
+
+    const playRound = function(markerInsertIndex) {
+        if (GameBoard.getBoard()[markerInsertIndex] === '') {
+            GameBoard.placeMarker(activePlayer.marker, markerInsertIndex);
+            round += 1;
+        } else {
+            alert('That spot is already taken. Please choose a different spot.')
+            return;
+        }
+
+        const winner = getWinner();
+
+        if (round > 8 && winner === null) {
+            alert("The game ended in a tie.");
+            return;
+        }
+
+        if (winner !== null) {
+            alert(`The winner is ${winner.name}!`);
+            return;
+        }
+
+        switchPlayerTurn();
+    }
+
     // Player wins when they mark all three spaces of a row, column or diagonal of the grid
-    const checkWinner = function() {
-        const markerCountX = GameBoard.getMarkerCount("X");
-        const markerCountO = GameBoard.getMarkerCount("O");
+    const getWinner = function() {
+        const winCombos = GameBoard.WIN_COMBOS
+        console.log(`winCombos = ${winCombos}`)
 
-        const hasThree = markerCounts => 
-            Object.values(markerCounts).some(track => track.includes(3));
+        // Check if for ANY of the wincombos, ALL board cells of these indices contain the activePlayer's marker 
+        const winnerExists = winCombos.some(combo => {
+            const board = GameBoard.getBoard();
+            const winner = combo.every(index => board[index] === activePlayer.marker);
+            return winner;
+        });
 
-        if (hasThree(markerCountX)) console.log("The winner is X");
-        else if (hasThree(markerCountO)) console.log("The winner is O")
+        if (winnerExists) {
+            return activePlayer;
+        } else {
+            return null
+        }
     };
-    
-    return { checkWinner }
+
+    return { init, playRound, getActivePlayer, hasStarted }
     
 })();
 
-function createPlayer(marker) {
-    
-}
+const DisplayController = (function() {
+    const game = GameController;
+    const playerTurn = document.querySelector('.turn')
+    const boardDiv = document.querySelector('.board');
+    const startRestartButton = document.querySelector('.start-restart');
+    const player1Input = document.querySelector('#player1');
+    const player2Input = document.querySelector('#player2');
+
+    const init = function() {
+        updateScreen();
+    }
+
+    const updateScreen = function() {
+        startRestartButton.textContent = game.hasStarted() ? "Restart" : "Start game";
+
+        // Clear board before updating with most recent state
+        boardDiv.textContent = ''
+
+        // Get state
+        const board = GameBoard.getBoard();
+        const activePlayer = GameController.getActivePlayer();
+
+        // Display player turn on screen
+        playerTurn.textContent = `It's ${activePlayer.name}'s turn.`;
+
+        // Render board cells
+        board.forEach((value, index) => {
+            const cellButton = document.createElement("button");
+            cellButton.classList.add("cell")
+            cellButton.dataset.index = index;
+            cellButton.dataset.marker = value;
+            cellButton.textContent = value;
+            boardDiv.appendChild(cellButton);
+        });
+    };
+
+    // Listen for click events
+    function boardClickHandler(event) {
+        const selectedCellIndex = Number(event.target.dataset.index);
+        game.playRound(selectedCellIndex);
+        updateScreen();
+    }
+
+    boardDiv.addEventListener("click", boardClickHandler);
+
+    function startButtonClickHandler(event) {
+        const player1Name = player1Input.value;
+        const player2Name = player2Input.value;
+        GameController.init(player1Name, player2Name);
+    }
+
+    startRestartButton.addEventListener("click", startButtonClickHandler);
+
+    return { init }
+})();
+

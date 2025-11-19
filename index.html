@@ -5,9 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    
+    <div class="controls">
+        <form>
+            <div>
+                <label for="player1">Player 1:</label>
+                <input type="text" name="player1" id="player1">
+            </div>
+            <div>
+                <label for="player2">Player 2:</label>
+                <input type="text" name="player2" id="player2">
+            </div>
+        </form>
+        <button class="start-restart">Start game</button>
+    </div>
+    <div class="turn"></div>
+    <div class="board"></div>
 </body>
 </html>
